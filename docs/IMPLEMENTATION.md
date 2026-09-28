@@ -32,6 +32,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 6. Kitchen API | List, fetch, and move status only along the allowed line | Implementation, features, domain, README |
 | 7. Menu page | Next.js shell renders the catalog, including unavailable items | Implementation, features, philosophy, README |
 | 8. Builder and checkout | Preview total in the browser; only a matching quote is stored | Implementation, features, philosophy, README |
+| 9. Confirmation and kitchen | The customer can read the ticket; the kitchen can move status | Implementation, features, philosophy, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 

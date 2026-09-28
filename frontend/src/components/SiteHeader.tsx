@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/", label: "Menu" },
   { href: "/build", label: "Build" },
+  { href: "/kitchen", label: "Kitchen" },
 ];
 
 export function SiteHeader() {

@@ -312,8 +312,71 @@ legend,
   color: var(--tomato);
 }
 
-.lede a {
+.lede a,
+.receipt a {
   color: var(--tomato);
+}
+
+.narrow {
+  max-width: 40rem;
+}
+
+.receipt,
+.ticket-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 1rem 1.1rem;
+}
+
+.receipt ul,
+.ticket-card ul {
+  list-style: none;
+  margin: 0.4rem 0;
+  padding: 0;
+}
+
+.receipt li,
+.ticket-card li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0;
+}
+
+.line-total {
+  margin: 0;
+  text-align: right;
+}
+
+.tickets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.8rem;
+}
+
+.ticket-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.ticket-card h2,
+.receipt h2 {
+  margin: 0;
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.ticket-card header p {
+  margin: 0;
+  color: var(--tomato);
+}
+
+.ticket-card.status-cancelled {
+  opacity: 0.6;
 }
 
 @media (max-width: 900px) {
