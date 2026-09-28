@@ -12,9 +12,9 @@ Ingredients will change. A mozzarella price can move, or an item can be marked u
 
 ## Modules follow the counter, not the framework
 
-Two business capabilities exist: showing what can go on a pizza, and taking an order. Those will become two backend modules. Health is already a third module because it is operational, not a shop rule: it only answers whether Postgres accepts `SELECT 1`. The storefront will be a client of the business modules. It does not invent a third set of rules. If the page allows a selection the API would reject, that is a bug in the page.
+Two business capabilities exist: showing what can go on a pizza, and taking an order. Those are `IngredientsModule` and `OrdersModule`. Health is a third module because it is operational, not a shop rule: it only answers whether Postgres accepts `SELECT 1`. NestJS is the framework because a module is an explicit import list. The cost is decorator metadata and a build step.
 
-NestJS is the framework because a module is an explicit import list. An Express app could do the same with folders, and was the smaller alternative. The cost accepted here is decorator metadata and a build step, in exchange for a layout a later reader can map onto catalog and ordering without hunting through one file.
+The storefront is a client of those modules. It formats cents and groups rows into Crusts, Sauces, Cheeses, and Toppings. It does not decide whether an item can be ordered. Unavailable is a field from the API, shown as "Off the board." A later builder may disable that control. It may not offer the item as selectable. If a page allows a selection the API would reject, that is a bug in the page.
 
 ## What this design refuses
 

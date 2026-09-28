@@ -24,6 +24,7 @@ Shop name: **Hearth**. One location. The currency is US dollars, stored as cents
 9. Delivery requires a name, a phone number, and a street address.
 10. The request includes `quotedTotalCents`. It must equal the server total. On mismatch the API returns 409 with `serverTotalCents` and inserts nothing.
 11. A new order starts as `RECEIVED`.
+
 ## Status decision logic
 
 `PATCH /orders/:id/status` loads the current status, calls `assertStatusTransition`, then updates only if that status is still current.

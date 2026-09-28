@@ -64,6 +64,18 @@ docker compose down
 
 `docker compose down -v` also deletes the data volume. Use that only when you want an empty database. After a volume wipe, run `npx prisma migrate deploy` and `npx prisma db seed` again.
 
+## Storefront
+
+From `frontend/`, with the API already running:
+
+```bash
+copy .env.example .env.local
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`. The menu page reads `GET /ingredients` and shows every row. Unavailable items are labeled "Off the board" instead of a price. Building a pizza is not on this page yet.
+
 ## Environment variables
 
 | Name | Purpose | Example |
