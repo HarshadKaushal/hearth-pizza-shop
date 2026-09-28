@@ -1,0 +1,21 @@
+name: hearth
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hearth
+      POSTGRES_PASSWORD: hearth
+      POSTGRES_DB: hearth
+    ports:
+      - "5432:5432"
+    volumes:
+      - hearth_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hearth -d hearth"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  hearth_pg:

@@ -1,0 +1,52 @@
+# Business and domain notes
+
+Shop name: **Hearth**. One location. The currency is US dollars, stored as cents.
+
+## Assumptions
+
+- There is one menu for everyone. No lunch pricing, no loyalty, no coupons.
+- The customer does not have an account. The order carries a name and a phone number so the counter can call out the pizza.
+- "Place an order with the restaurant" means the kitchen receives a durable order. It does not mean a payment is captured.
+- Staff using the kitchen board are on a trusted network. The status endpoint is not behind a login in this version. That is a known limit, not an oversight, and it is listed under pending accounts in the feature notes.
+- Ingredient prices are per pizza, added once. They are not multiplied by size. Size changes only the base.
+- Unavailable means the shop cannot put that ingredient on a new pizza. It does not delete old orders that used it.
+
+## Business rules
+
+1. A pizza has a size: small, medium, or large.
+2. Base prices: small 800 cents, medium 1200 cents, large 1600 cents.
+3. A pizza includes exactly one crust, exactly one sauce, and exactly one cheese.
+4. Toppings are optional. More than eight toppings is refused.
+5. Every selected ingredient must exist and be available.
+6. Pizza price = size base + the sum of the selected ingredient prices.
+7. An order contains at least one pizza. Order total = the sum of pizza prices.
+8. Pickup requires a customer name and a phone number.
+9. Delivery requires a name, a phone number, and a street address.
+10. A new order starts as `RECEIVED`.
+11. Allowed status moves:
+    - `RECEIVED` → `PREPARING` or `CANCELLED`
+    - `PREPARING` → `READY` or `CANCELLED`
+    - `READY` → `COMPLETED` or `CANCELLED`
+    - `COMPLETED` and `CANCELLED` do not move again
+
+## Decision logic
+
+This is the order the API will follow when an order is posted. It is specified now so the later implementation has a checklist rather than a fresh interpretation.
+
+1. Reject the body if the name or phone is missing, if there is no pizza, or if delivery has no address.
+2. For each pizza, load the referenced ingredients in one query.
+3. Reject unknown ids, unavailable rows, a missing or duplicate crust, sauce, or cheese, and a topping count above eight.
+4. Compute each pizza total from the size base and the stored prices, then sum the order.
+5. If the client sent a quoted total and it differs, reject the order and return the server total. Do not save a partial order.
+6. Insert the order, each pizza, and each ingredient snapshot (id, name, category, price) in one transaction.
+7. Set status to `RECEIVED` and return the saved order.
+
+Catalog reads do not use this path. They return every ingredient, including unavailable ones, so the shop can show what is off the board instead of hiding it.
+
+## Worked example
+
+Medium base 1200. Classic crust 0, tomato sauce 0, mozzarella 150, pepperoni 200, mushrooms 150.
+
+Medium pizza = 1200 + 0 + 0 + 150 + 200 + 150 = 1700 cents ($17.00).
+
+Exact seed prices are fixed when the seed commit lands. Until then, this example only illustrates the formula.
