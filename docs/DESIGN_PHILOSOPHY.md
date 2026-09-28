@@ -4,11 +4,11 @@ Hearth is a small shop system, so the engineering approach is narrow on purpose:
 
 ## The API is the source of price truth
 
-A browser total is a display. It can be stale, rounded wrong, or edited in the request. The order endpoint loads the current ingredient rows, applies the size base and the add-on rules, and writes that result. If the client sends a quote, the quote must equal the server result or the order is refused. The design refuses to persist a total that arrived from the client.
+A browser total is a display. It can be stale, rounded wrong, or edited in the request. `POST /orders` loads the current ingredient rows, applies the size base and the add-on rules in `pricePizza`, and writes that result. The client must send `quotedTotalCents`. If it differs, the response is 409 with `serverTotalCents` and no row is inserted. The design refuses to persist a total that arrived from the client.
 
 ## Snapshots protect history
 
-Ingredients will change. A mozzarella price can move, or an item can be marked unavailable. An order is a record of a sale, so `OrderPizzaIngredient` stores `name`, `category`, and `priceCents` beside `ingredientId`. The live catalog row stays attached for traceability. Nothing writes those snapshot columns yet; the order endpoint is the only place that will.
+Ingredients will change. A mozzarella price can move, or an item can be marked unavailable. An order is a record of a sale, so `OrderPizzaIngredient` stores `name`, `category`, and `priceCents` beside `ingredientId`. The live catalog row stays attached for traceability. `POST /orders` is the only writer of those columns, and it writes them in the same transaction as the order.
 
 ## Modules follow the counter, not the framework
 

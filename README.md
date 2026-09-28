@@ -80,10 +80,38 @@ Not available yet. A later commit adds the NestJS API, the Next.js app, migratio
 
 - `GET /health` — database reachability. `200` when Postgres answers, `503` when it does not.
 - `GET /ingredients` — every menu row, including unavailable items. `priceCents` is an integer. No dollar strings.
-- `POST /orders` — not implemented
+- `POST /orders` — places an order. The server recomputes the total. A quote that does not match returns `409` and `{ "serverTotalCents": <number> }` and writes nothing. Illegal pizzas return `400`.
 - `GET /orders` — not implemented
 - `GET /orders/:id` — not implemented
 - `PATCH /orders/:id/status` — not implemented
+
+Pricing checks without the database:
+
+```bash
+cd backend
+npm run test:pricing
+```
+
+Example body for the medium pizza in the domain notes (`1700` cents). Replace the ids with values from `GET /ingredients`.
+
+```json
+{
+  "customerName": "Ava Stone",
+  "phone": "555-0100",
+  "fulfillment": "PICKUP",
+  "quotedTotalCents": 1700,
+  "pizzas": [
+    {
+      "size": "MEDIUM",
+      "ingredientIds": ["<crust>", "<sauce>", "<cheese>", "<pepperoni>", "<mushrooms>"]
+    }
+  ]
+}
+```
+
+```bash
+curl -X POST http://localhost:3001/orders -H "Content-Type: application/json" -d @order.json
+```
 
 ## Troubleshooting
 

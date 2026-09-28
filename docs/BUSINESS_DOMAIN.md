@@ -16,14 +16,15 @@ Shop name: **Hearth**. One location. The currency is US dollars, stored as cents
 1. A pizza has a size: small, medium, or large.
 2. Base prices: small 800 cents, medium 1200 cents, large 1600 cents.
 3. A pizza includes exactly one crust, exactly one sauce, and exactly one cheese.
-4. Toppings are optional. More than eight toppings is refused.
+4. Toppings are optional. More than eight toppings is refused. Each ingredient id may appear once per pizza.
 5. Every selected ingredient must exist and be available.
 6. Pizza price = size base + the sum of the selected ingredient prices.
-7. An order contains at least one pizza. Order total = the sum of pizza prices.
-8. Pickup requires a customer name and a phone number.
+7. An order contains at least one pizza and at most ten. Order total = the sum of pizza prices. Ten is an operational cap so one request cannot insert an unbounded ticket.
+8. Pickup requires a customer name and a phone number. An address sent with pickup is ignored and stored as null.
 9. Delivery requires a name, a phone number, and a street address.
-10. A new order starts as `RECEIVED`.
-11. Allowed status moves:
+10. The request includes `quotedTotalCents`. It must equal the server total. On mismatch the API returns 409 with `serverTotalCents` and inserts nothing.
+11. A new order starts as `RECEIVED`.
+12. Allowed status moves:
     - `RECEIVED` → `PREPARING` or `CANCELLED`
     - `PREPARING` → `READY` or `CANCELLED`
     - `READY` → `COMPLETED` or `CANCELLED`
@@ -31,14 +32,14 @@ Shop name: **Hearth**. One location. The currency is US dollars, stored as cents
 
 ## Decision logic
 
-This is the order the API will follow when an order is posted. It is specified now so the later implementation has a checklist rather than a fresh interpretation.
+This is the order `POST /orders` follows.
 
-1. Reject the body if the name or phone is missing, if there is no pizza, or if delivery has no address.
-2. For each pizza, load the referenced ingredients in one query.
-3. Reject unknown ids, unavailable rows, a missing or duplicate crust, sauce, or cheese, and a topping count above eight.
+1. Reject the body if the name or phone is missing, if there is no pizza, if there are more than ten pizzas, or if delivery has no address.
+2. Load the referenced ingredients in one query.
+3. Reject unknown ids, unavailable rows, a repeated id, a count other than one for crust, sauce, or cheese, and a topping count above eight.
 4. Compute each pizza total from the size base and the stored prices, then sum the order.
-5. If the client sent a quoted total and it differs, reject the order and return the server total. Do not save a partial order.
-6. Insert the order, each pizza, and each ingredient snapshot (id, name, category, price) in one transaction.
+5. If `quotedTotalCents` differs, respond 409 with `serverTotalCents`. Do not save a partial order.
+6. Insert the order, each pizza, and each ingredient snapshot (id, name, category, price) in one transaction. Pickup stores a null address.
 7. Set status to `RECEIVED` and return the saved order.
 
 Catalog reads do not use this path. `GET /ingredients` returns every ingredient, including unavailable ones, ordered by category then name. Hiding unavailable rows would make an off-the-board item look like it was never on the menu.

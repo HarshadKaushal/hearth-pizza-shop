@@ -17,8 +17,8 @@ Money is integer cents. The pricing function will live on the server and will be
 | Prisma 6 with migrations in git | Required ORM. `migrate deploy` is what a later container will run; `migrate dev` was used once to create the SQL. Seed stays in `package.json#prisma` because that is the Prisma 6 mechanism. A `prisma.config.ts` file is a Prisma 7 change and was not started. | Schema milestone |
 | Integer cents | Floating currency drifts. A $1.50 topping is `150`, not `1.5`. | Decided now, applied when the schema lands |
 | No customer accounts | The assignment asks to view ingredients, customize a pizza, and place an order. A name and phone on the order are enough. | Decided now |
-| Server rejects a mismatched quote | A hidden field or a modified request must not set the charged total. | Applied when orders are implemented |
-| Order lines snapshot name and price | A later catalog edit must not rewrite what the customer bought. | Applied with the order schema |
+| Server rejects a mismatched quote | A hidden field or a modified request must not set the charged total. `POST /orders` returns 409 with `serverTotalCents` and does not insert a row. | Order placement |
+| Order lines snapshot name and price | A later catalog edit must not rewrite what the customer bought. `OrderPizzaIngredient` copies name, category, and price inside the same transaction as the order. | Order placement |
 
 ## Milestones
 
@@ -28,6 +28,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 2. Menu schema and seed | Ingredient, order, pizza, and snapshot tables; 23 seeded ingredients | Implementation, features, domain, philosophy, README |
 | 3. API process | NestJS bootstrap, global Prisma module, `GET /health` | Implementation, features, philosophy, README |
 | 4. Catalog API | `GET /ingredients` returns price, category, and availability for every row | Implementation, features, domain, README |
+| 5. Order placement | Server prices each pizza, rejects a bad quote, stores snapshots | Implementation, features, domain, philosophy, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -36,9 +37,11 @@ Later rows are added in the commit that creates them. They are not backfilled.
 - **Documentation before behavior.** The first milestone had rules and no code. The risk was writing prices that the seed would later contradict. The domain note kept a formula example and named the cents only after `backend/prisma/seed.ts` existed.
 - **Host port 5432 was already taken** on the machine where the migration was generated, by an unrelated Postgres container. The committed Compose file still publishes `5432`, which is the port a clean machine should use. The migration was applied through host port `5433` by overriding `DATABASE_URL` for that session. The README tells a reader to change the host mapping and the URL together. The container port is unchanged, so a future API container can keep using `postgres:5432` on the Compose network.
 - **Health has to fail closed.** A process that is up while Postgres is down is not healthy. `GET /health` runs `SELECT 1` and returns 503 if that query throws, instead of always returning 200.
+- **Two layers reject a bad pizza.** The DTO refuses an empty order, a missing delivery address, and more than 11 ingredient ids. `pricePizza` then refuses the shop rules (one crust, one sauce, one cheese, duplicates, unavailable rows). A request can fail in either layer. The pricing function is covered by `npm run test:pricing` without a database; the HTTP path was checked with a real medium pizza at 1700 cents, a 409 on a quote of 1 cent, and a 400 when Anchovies were included.
 
 ## Trade-offs
 
-- **Docs start incomplete on purpose.** The README says only Postgres runs. Pretending the API exists would make the first commit a lie. Completeness is a property of the last milestone, accuracy is a property of every milestone.
-- **Compose contains only Postgres.** Adding API and web services now would commit Dockerfiles for apps that do not exist. Those services arrive with the apps.
-- **No auth, payments, or websockets.** Recorded as pending features so the cut is visible. See [FEATURES.md](FEATURES.md).
+- **Docs start incomplete on purpose.** The README says only what the current commit can run. Pretending a later page exists would make the commit a lie.
+- **Compose contains only Postgres.** API and web services arrive with their Dockerfiles.
+- **The browser will preview a total, and the server will ignore it unless it matches.** That preview is not built yet. The API already requires `quotedTotalCents`.
+- **No auth, payments, or websockets.** Recorded as pending features. See [FEATURES.md](FEATURES.md).
