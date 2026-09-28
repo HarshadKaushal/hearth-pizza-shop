@@ -74,7 +74,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`. The menu page reads `GET /ingredients` and shows every row. Unavailable items are labeled "Off the board" instead of a price. Building a pizza is not on this page yet.
+Open `http://localhost:3000`. The menu page reads `GET /ingredients`. Unavailable items are labeled "Off the board."
+
+`/build` lets you pick a size, one crust, one sauce, one cheese, and up to eight toppings. Anchovies cannot be selected. The running total is a preview using the same bases as the API ($8, $12, $16 plus ingredient cents). `/checkout` asks for a name and phone, and an address when delivery is selected, then `POST`s the order with `quotedTotalCents`. A successful response navigates to `/orders/:id`. That page is not built yet, so the browser shows Next's 404 even though the order is stored.
 
 ## Environment variables
 

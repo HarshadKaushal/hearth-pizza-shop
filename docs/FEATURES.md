@@ -15,15 +15,13 @@ Status words mean the following.
 
 ## Partial
 
-Nothing is partial. There is still no page for the catalog, the builder, confirmation, or the kitchen.
+- **Place an order in the browser.** `/build` enforces one crust, one sauce, one cheese, and disables Anchovies and a ninth topping. A medium pizza with classic crust, tomato, mozzarella, pepperoni, and mushrooms previewed at $17.00, was added to the order, and checkout stored it as `RECEIVED` with `totalCents` 1700. After success the app navigates to `/orders/:id`, and that route is still a 404.
 
 ## Pending
 
-- **Pizza builder.** A pizza will require one crust, one sauce, and one cheese, and will allow up to eight toppings, with a live price preview. The menu page does not build a pizza yet.
-- **Place an order.** The API accepts a legal order. The browser checkout does not exist yet.
-- **Order confirmation.** The API can return a saved order. The confirmation page does not exist yet.
+- **Order confirmation.** The API can return a saved order, and checkout redirects there. The page does not exist yet, so the customer sees a 404.
 - **Kitchen board.** The status API works. The restaurant page does not exist yet.
-- **Full Docker stack.** One Compose command will run Postgres, the API, and the web app. Blocked on the apps existing.
+- **Full Docker stack.** One Compose command will run Postgres, the API, and the web app. The apps run on the host. Dockerfiles are not written yet.
 - **Customer accounts.** Out of scope for this assignment. Not scheduled.
 - **Card payments.** Out of scope. An order is a request to the restaurant, not a charge.
 - **Realtime kitchen updates.** Out of scope. The board will refresh on a timer if it is built. Push updates are not planned.

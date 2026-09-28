@@ -1,6 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const LINKS = [
+  { href: "/", label: "Menu" },
+  { href: "/build", label: "Build" },
+];
 
 export function SiteHeader() {
+  const pathname = usePathname();
+
   return (
     <header className="site-header">
       <Link href="/" className="wordmark">
@@ -9,7 +19,15 @@ export function SiteHeader() {
       </Link>
       <p className="tagline">Neighborhood pizza, priced in the open.</p>
       <nav>
-        <Link href="/">Menu</Link>
+        {LINKS.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            aria-current={pathname === link.href ? "page" : undefined}
+          >
+            {link.label}
+          </Link>
+        ))}
       </nav>
     </header>
   );

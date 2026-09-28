@@ -175,6 +175,154 @@ main {
   font-size: 0.92rem;
 }
 
+.builder,
+.checkout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+fieldset {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+}
+
+legend,
+.field {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.choices button,
+.ticket button,
+.primary {
+  font: inherit;
+  cursor: pointer;
+}
+
+.choices button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-width: 9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+}
+
+.choices button span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.choices button[aria-pressed="true"] {
+  border-color: var(--tomato);
+  box-shadow: inset 3px 0 0 var(--tomato);
+}
+
+.choices button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.field input {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+}
+
+.tray,
+.details,
+.checkout > section {
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.total {
+  margin: 0.2rem 0 0.6rem;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 2rem;
+}
+
+.hint {
+  color: var(--muted);
+}
+
+.primary {
+  display: inline-block;
+  width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.8rem 1rem;
+  border: 0;
+  background: var(--tomato);
+  color: #fffaf3;
+  text-align: center;
+  text-decoration: none;
+}
+
+.primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ticket {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.ticket li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.ticket strong,
+.ticket span {
+  display: block;
+}
+
+.ticket button {
+  margin-top: 0.25rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tomato);
+}
+
+.lede a {
+  color: var(--tomato);
+}
+
+@media (max-width: 900px) {
+  .builder,
+  .checkout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 720px) {
   .site-header {
     flex-wrap: wrap;

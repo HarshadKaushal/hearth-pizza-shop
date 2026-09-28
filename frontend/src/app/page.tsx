@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { fetchIngredients } from "@/lib/catalog";
 import { formatCents } from "@/lib/money";
 import { CATEGORY_LABEL, CATEGORY_ORDER, type Ingredient } from "@/lib/types";
@@ -14,7 +15,8 @@ export default async function MenuPage() {
         <h1>Every ingredient has a price before it hits the pie.</h1>
         <p className="lede">
           Crust, sauce, and cheese are chosen one each. Toppings are extra, up to eight. Size sets
-          the base: $8, $12, or $16. What you see here is what the kitchen charges.
+          the base: $8, $12, or $16. What you see here is what the kitchen charges.{" "}
+          <Link href="/build">Build a pizza</Link>.
         </p>
       </section>
       {ingredients === null ? <MenuUnavailable /> : <MenuList ingredients={ingredients} />}

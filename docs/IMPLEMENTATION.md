@@ -31,6 +31,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 5. Order placement | Server prices each pizza, rejects a bad quote, stores snapshots | Implementation, features, domain, philosophy, README |
 | 6. Kitchen API | List, fetch, and move status only along the allowed line | Implementation, features, domain, README |
 | 7. Menu page | Next.js shell renders the catalog, including unavailable items | Implementation, features, philosophy, README |
+| 8. Builder and checkout | Preview total in the browser; only a matching quote is stored | Implementation, features, philosophy, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -46,5 +47,5 @@ Later rows are added in the commit that creates them. They are not backfilled.
 
 - **Docs start incomplete on purpose.** The README says only what the current commit can run. Pretending a later page exists would make the commit a lie.
 - **Compose contains only Postgres.** API and web services arrive with their Dockerfiles.
-- **The browser will preview a total, and the server will ignore it unless it matches.** That preview is not built yet. The API already requires `quotedTotalCents`.
+- **The browser previews a total with a copy of the formula.** `frontend/src/lib/pricing.ts` repeats the size bases and the one-of-each rules so the tray is not blank. It is not imported by the API. `POST /orders` still recomputes. A mismatch returns 409, and the checkout button retries with `serverTotalCents`. The cost is two copies that can drift. The server copy is the one that charges.
 - **No auth, payments, or websockets.** Recorded as pending features. See [FEATURES.md](FEATURES.md).

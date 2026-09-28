@@ -4,7 +4,7 @@ Hearth is a small shop system, so the engineering approach is narrow on purpose:
 
 ## The API is the source of price truth
 
-A browser total is a display. It can be stale, rounded wrong, or edited in the request. `POST /orders` loads the current ingredient rows, applies the size base and the add-on rules in `pricePizza`, and writes that result. The client must send `quotedTotalCents`. If it differs, the response is 409 with `serverTotalCents` and no row is inserted. The design refuses to persist a total that arrived from the client.
+A browser total is a display. It can be stale, rounded wrong, or edited in the request. `POST /orders` loads the current ingredient rows, applies the size base and the add-on rules in `pricePizza`, and writes that result. The storefront may preview a total with the same bases and add-ons, in `frontend/src/lib/pricing.ts`. That file is a copy, not a shared package. If it drifts, the 409 response is the correction: checkout shows `serverTotalCents` and the next submit sends that figure. The design still refuses to persist a total that arrived unchecked from the client.
 
 ## Snapshots protect history
 
