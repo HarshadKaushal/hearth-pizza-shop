@@ -27,6 +27,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 1. Repository foundation | Git, ignore rules, Postgres service, these five documents, first AI review | All of them, created |
 | 2. Menu schema and seed | Ingredient, order, pizza, and snapshot tables; 23 seeded ingredients | Implementation, features, domain, philosophy, README |
 | 3. API process | NestJS bootstrap, global Prisma module, `GET /health` | Implementation, features, philosophy, README |
+| 4. Catalog API | `GET /ingredients` returns price, category, and availability for every row | Implementation, features, domain, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 

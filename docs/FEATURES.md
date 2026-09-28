@@ -8,16 +8,16 @@ Status words mean the following.
 
 ## Completed
 
-Nothing is completed. The database container can be started, and that is infrastructure, not a shop feature.
+- **API process.** `GET /health` reports whether Postgres answers. CORS is limited to `FRONTEND_ORIGIN`.
+- **Ingredient catalog API.** `GET /ingredients` returns all 23 seeded rows, ordered by category then name, including unavailable Anchovies. Money is `priceCents`.
 
 ## Partial
 
-- **Menu data.** Postgres holds 4 crusts, 4 sauces, 4 cheeses, and 11 toppings, with prices in cents. Anchovies are seeded `available = false`. There is no HTTP route and no page, so a customer still cannot see the menu.
-- **API process.** `GET /health` reports whether Postgres answers. CORS is limited to `FRONTEND_ORIGIN`. No catalog or order routes exist, so the shop still cannot be used.
+Nothing is partial. The catalog still has no page, so a customer cannot see these rows without calling the API.
 
 ## Pending
 
-- **Ingredient catalog.** Customers will see each ingredient, its category, its price, and whether it can be ordered. The rows exist. Blocked on the API and the catalog page.
+- **Ingredient catalog page.** Customers will see each ingredient, its category, its price, and whether it can be ordered. The API returns those fields. Blocked on the storefront.
 - **Pizza builder.** A pizza will require one crust, one sauce, and one cheese, and will allow up to eight toppings, with a live price preview. Blocked on the catalog and the pricing rules in code.
 - **Place an order.** Pickup or delivery, with name and phone, and an address when the order is for delivery. The server stores the recomputed total. Blocked on the order API.
 - **Order confirmation.** The customer can open the saved order and read the itemized total. Blocked on place-an-order.

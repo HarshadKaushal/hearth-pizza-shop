@@ -41,7 +41,7 @@ This is the order the API will follow when an order is posted. It is specified n
 6. Insert the order, each pizza, and each ingredient snapshot (id, name, category, price) in one transaction.
 7. Set status to `RECEIVED` and return the saved order.
 
-Catalog reads do not use this path. They return every ingredient, including unavailable ones, so the shop can show what is off the board instead of hiding it.
+Catalog reads do not use this path. `GET /ingredients` returns every ingredient, including unavailable ones, ordered by category then name. Hiding unavailable rows would make an off-the-board item look like it was never on the menu.
 
 ## Seed prices
 

@@ -78,8 +78,8 @@ Not available yet. A later commit adds the NestJS API, the Next.js app, migratio
 
 ## API
 
-- `GET /health` — returns database reachability. Implemented.
-- `GET /ingredients` — not implemented
+- `GET /health` — database reachability. `200` when Postgres answers, `503` when it does not.
+- `GET /ingredients` — every menu row, including unavailable items. `priceCents` is an integer. No dollar strings.
 - `POST /orders` — not implemented
 - `GET /orders` — not implemented
 - `GET /orders/:id` — not implemented
