@@ -1,9 +1,16 @@
-import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { FulfillmentType } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateOrderDto } from "./create-order.dto";
 import { orderWithPizzas, toOrderResponse } from "./order.presenter";
 import { PizzaPricingError, pricePizza } from "./pricing";
+import { assertStatusTransition, StatusTransitionError } from "./status";
+import { UpdateStatusDto } from "./update-status.dto";
 
 @Injectable()
 export class OrdersService {
@@ -65,6 +72,55 @@ export class OrdersService {
       }),
     );
 
+    return toOrderResponse(order);
+  }
+
+  async list() {
+    const orders = await this.prisma.order.findMany({
+      include: orderWithPizzas,
+      orderBy: { createdAt: "desc" },
+    });
+    return { orders: orders.map(toOrderResponse) };
+  }
+
+  async findOne(id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: orderWithPizzas,
+    });
+    if (!order) {
+      throw new NotFoundException("Order not found.");
+    }
+    return toOrderResponse(order);
+  }
+
+  async updateStatus(id: string, dto: UpdateStatusDto) {
+    const existing = await this.prisma.order.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException("Order not found.");
+    }
+
+    try {
+      assertStatusTransition(existing.status, dto.status);
+    } catch (error) {
+      if (error instanceof StatusTransitionError) {
+        throw new ConflictException(error.message);
+      }
+      throw error;
+    }
+
+    const updated = await this.prisma.order.updateMany({
+      where: { id, status: existing.status },
+      data: { status: dto.status },
+    });
+    if (updated.count !== 1) {
+      throw new ConflictException("The order status changed. Refresh and try again.");
+    }
+
+    const order = await this.prisma.order.findUniqueOrThrow({
+      where: { id },
+      include: orderWithPizzas,
+    });
     return toOrderResponse(order);
   }
 }

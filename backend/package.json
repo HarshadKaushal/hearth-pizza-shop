@@ -10,6 +10,7 @@
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "test": "tsx --test src/orders/pricing.spec.ts src/orders/status.spec.ts",
     "test:pricing": "tsx --test src/orders/pricing.spec.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

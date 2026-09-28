@@ -81,15 +81,15 @@ Not available yet. A later commit adds the NestJS API, the Next.js app, migratio
 - `GET /health` — database reachability. `200` when Postgres answers, `503` when it does not.
 - `GET /ingredients` — every menu row, including unavailable items. `priceCents` is an integer. No dollar strings.
 - `POST /orders` — places an order. The server recomputes the total. A quote that does not match returns `409` and `{ "serverTotalCents": <number> }` and writes nothing. Illegal pizzas return `400`.
-- `GET /orders` — not implemented
-- `GET /orders/:id` — not implemented
-- `PATCH /orders/:id/status` — not implemented
+- `GET /orders` — kitchen list, newest first, with pizzas and ingredient snapshots.
+- `GET /orders/:id` — one order, or `404`.
+- `PATCH /orders/:id/status` — body `{ "status": "PREPARING" }`. Illegal jumps return `409`. Terminal orders do not move.
 
-Pricing checks without the database:
+Pricing and status checks without the database:
 
 ```bash
 cd backend
-npm run test:pricing
+npm test
 ```
 
 Example body for the medium pizza in the domain notes (`1700` cents). Replace the ids with values from `GET /ingredients`.

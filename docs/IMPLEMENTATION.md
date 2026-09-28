@@ -29,6 +29,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 3. API process | NestJS bootstrap, global Prisma module, `GET /health` | Implementation, features, philosophy, README |
 | 4. Catalog API | `GET /ingredients` returns price, category, and availability for every row | Implementation, features, domain, README |
 | 5. Order placement | Server prices each pizza, rejects a bad quote, stores snapshots | Implementation, features, domain, philosophy, README |
+| 6. Kitchen API | List, fetch, and move status only along the allowed line | Implementation, features, domain, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -37,7 +38,8 @@ Later rows are added in the commit that creates them. They are not backfilled.
 - **Documentation before behavior.** The first milestone had rules and no code. The risk was writing prices that the seed would later contradict. The domain note kept a formula example and named the cents only after `backend/prisma/seed.ts` existed.
 - **Host port 5432 was already taken** on the machine where the migration was generated, by an unrelated Postgres container. The committed Compose file still publishes `5432`, which is the port a clean machine should use. The migration was applied through host port `5433` by overriding `DATABASE_URL` for that session. The README tells a reader to change the host mapping and the URL together. The container port is unchanged, so a future API container can keep using `postgres:5432` on the Compose network.
 - **Health has to fail closed.** A process that is up while Postgres is down is not healthy. `GET /health` runs `SELECT 1` and returns 503 if that query throws, instead of always returning 200.
-- **Two layers reject a bad pizza.** The DTO refuses an empty order, a missing delivery address, and more than 11 ingredient ids. `pricePizza` then refuses the shop rules (one crust, one sauce, one cheese, duplicates, unavailable rows). A request can fail in either layer. The pricing function is covered by `npm run test:pricing` without a database; the HTTP path was checked with a real medium pizza at 1700 cents, a 409 on a quote of 1 cent, and a 400 when Anchovies were included.
+- **Two layers reject a bad pizza.** The DTO refuses an empty order, a missing delivery address, and more than 11 ingredient ids. `pricePizza` then refuses the shop rules (one crust, one sauce, one cheese, duplicates, unavailable rows). A request can fail in either layer. The pricing function is covered by `npm test` without a database; the HTTP path was checked with a real medium pizza at 1700 cents, a 409 on a quote of 1 cent, and a 400 when Anchovies were included.
+- **Status updates can race.** Two kitchen clicks can both read `RECEIVED`. The write is `updateMany` where the id and the previously read status still match. If the count is not 1, the API returns 409 and asks for a refresh instead of overwriting a newer status.
 
 ## Trade-offs
 
