@@ -24,7 +24,7 @@ Ports used on the host: `5432` (Postgres), later `3001` (API) and `3000` (web).
 
 ## What you can run right now
 
-Only the database is in the tree. The API, the storefront, and the full Compose stack are later milestones. Do not expect `npm start` to work yet.
+Postgres, the Prisma schema, the initial migration, and the ingredient seed. The HTTP API and the storefront are later milestones.
 
 1. From the repository root, start Postgres:
 
@@ -38,21 +38,28 @@ docker compose up -d postgres
 docker compose ps
 ```
 
-The `postgres` service should report `healthy`. Connection string for later tools:
+The `postgres` service should report `healthy`.
 
-```text
-postgresql://hearth:hearth@localhost:5432/hearth?schema=public
+3. Point Prisma at that database and apply the migration and seed. From `backend/`:
+
+```bash
+copy .env.example .env
+npm install
+npx prisma migrate deploy
+npx prisma db seed
 ```
 
-The same values are in [.env.example](.env.example). Copy that file to `.env` when a tool needs it. Do not commit `.env`.
+On macOS or Linux, use `cp .env.example .env` instead of `copy`.
 
-3. Stop the database when you are done:
+`migrate deploy` applies [backend/prisma/migrations](backend/prisma/migrations). The seed upserts 23 ingredients by name, so running it again updates prices instead of duplicating rows. Anchovies are stored as unavailable.
+
+4. Stop the database when you are done:
 
 ```bash
 docker compose down
 ```
 
-`docker compose down -v` also deletes the data volume. Use that only when you want an empty database.
+`docker compose down -v` also deletes the data volume. Use that only when you want an empty database. After a volume wipe, run `npx prisma migrate deploy` and `npx prisma db seed` again.
 
 ## Environment variables
 
@@ -79,6 +86,6 @@ No HTTP API yet. Planned routes, owned by the server:
 
 ## Troubleshooting
 
-- **Port 5432 already in use.** Another Postgres is bound to that port. Stop it, or change the host port in `docker-compose.yml` and the host in `DATABASE_URL` together.
+- **Port 5432 already in use.** Another Postgres is bound to that port. Change the host mapping in `docker-compose.yml` (for example `"5433:5432"`) and set `DATABASE_URL` to that same host port. The container port stays `5432`.
 - **`docker compose` is not recognized.** Install Docker Desktop and confirm `docker compose version` works. The command is `docker compose`, not `docker-compose`.
 - **Container stays unhealthy.** Run `docker compose logs postgres`. The usual cause is a volume left behind from a different Postgres image. `docker compose down -v` and start again.

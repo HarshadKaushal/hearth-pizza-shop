@@ -43,10 +43,14 @@ This is the order the API will follow when an order is posted. It is specified n
 
 Catalog reads do not use this path. They return every ingredient, including unavailable ones, so the shop can show what is off the board instead of hiding it.
 
+## Seed prices
+
+These cents are the rows in [backend/prisma/seed.ts](../backend/prisma/seed.ts). Crusts: Thin 0, Classic hand-tossed 0, Thick pan 100, Gluten-free 250. Sauces: Tomato 0, Basil pesto 100, BBQ 50, Garlic white 75. Cheeses: Mozzarella 150, Cheddar 150, Parmesan 175, Vegan mozzarella 200. Toppings: Pepperoni 200, Mushrooms 150, Black olives 125, Red onion 100, Bell peppers 100, Jalapeños 100, Pineapple 125, Roasted chicken 250, Bacon 225, Fresh basil 75, Anchovies 200 and unavailable.
+
 ## Worked example
 
-Medium base 1200. Classic crust 0, tomato sauce 0, mozzarella 150, pepperoni 200, mushrooms 150.
+Medium base 1200. Classic hand-tossed 0, Tomato 0, Mozzarella 150, Pepperoni 200, Mushrooms 150.
 
 Medium pizza = 1200 + 0 + 0 + 150 + 200 + 150 = 1700 cents ($17.00).
 
-Exact seed prices are fixed when the seed commit lands. Until then, this example only illustrates the formula.
+That selection is legal: one crust, one sauce, one cheese, two toppings, all available. Adding Anchovies is not legal while that row is unavailable, even though the price is stored.

@@ -8,7 +8,7 @@ A browser total is a display. It can be stale, rounded wrong, or edited in the r
 
 ## Snapshots protect history
 
-Ingredients will change. A mozzarella price can move, or an item can be marked unavailable. An order is a record of a sale, so each chosen ingredient is copied onto the order line with the name and price used at that moment. The live catalog row stays attached for traceability, but the receipt does not read through to the live price.
+Ingredients will change. A mozzarella price can move, or an item can be marked unavailable. An order is a record of a sale, so `OrderPizzaIngredient` stores `name`, `category`, and `priceCents` beside `ingredientId`. The live catalog row stays attached for traceability. Nothing writes those snapshot columns yet; the order endpoint is the only place that will.
 
 ## Modules follow the counter, not the framework
 
