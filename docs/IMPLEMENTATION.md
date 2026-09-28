@@ -12,7 +12,7 @@ Money is integer cents. The pricing function will live on the server and will be
 
 | Decision | Why | Commit |
 | --- | --- | --- |
-| NestJS rather than a single Express file | Catalog and ordering are separate modules with their own validation. The extra boilerplate is accepted so the folder layout matches the domain. | Planned for the API scaffold |
+| NestJS rather than a single Express file | Catalog and ordering need separate modules. The files were written by hand instead of `nest new`, so this commit contains only the process, the Prisma module, and health. The boilerplate cost is the decorators and `reflect-metadata`. | API scaffold |
 | PostgreSQL 16 via Compose | The assignment requires PostgreSQL and Docker. Compose gives a health check the later API container can wait on. | This milestone |
 | Prisma 6 with migrations in git | Required ORM. `migrate deploy` is what a later container will run; `migrate dev` was used once to create the SQL. Seed stays in `package.json#prisma` because that is the Prisma 6 mechanism. A `prisma.config.ts` file is a Prisma 7 change and was not started. | Schema milestone |
 | Integer cents | Floating currency drifts. A $1.50 topping is `150`, not `1.5`. | Decided now, applied when the schema lands |
@@ -26,6 +26,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | --- | --- | --- |
 | 1. Repository foundation | Git, ignore rules, Postgres service, these five documents, first AI review | All of them, created |
 | 2. Menu schema and seed | Ingredient, order, pizza, and snapshot tables; 23 seeded ingredients | Implementation, features, domain, philosophy, README |
+| 3. API process | NestJS bootstrap, global Prisma module, `GET /health` | Implementation, features, philosophy, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -33,6 +34,7 @@ Later rows are added in the commit that creates them. They are not backfilled.
 
 - **Documentation before behavior.** The first milestone had rules and no code. The risk was writing prices that the seed would later contradict. The domain note kept a formula example and named the cents only after `backend/prisma/seed.ts` existed.
 - **Host port 5432 was already taken** on the machine where the migration was generated, by an unrelated Postgres container. The committed Compose file still publishes `5432`, which is the port a clean machine should use. The migration was applied through host port `5433` by overriding `DATABASE_URL` for that session. The README tells a reader to change the host mapping and the URL together. The container port is unchanged, so a future API container can keep using `postgres:5432` on the Compose network.
+- **Health has to fail closed.** A process that is up while Postgres is down is not healthy. `GET /health` runs `SELECT 1` and returns 503 if that query throws, instead of always returning 200.
 
 ## Trade-offs
 

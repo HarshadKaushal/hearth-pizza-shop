@@ -47,9 +47,12 @@ copy .env.example .env
 npm install
 npx prisma migrate deploy
 npx prisma db seed
+npm run start
 ```
 
 On macOS or Linux, use `cp .env.example .env` instead of `copy`.
+
+`npm run start` listens on port 3001. `GET http://localhost:3001/health` returns `{"status":"ok","database":"up"}` when Postgres is reachable, and `503` when it is not. Shop routes are not registered yet.
 
 `migrate deploy` applies [backend/prisma/migrations](backend/prisma/migrations). The seed upserts 23 ingredients by name, so running it again updates prices instead of duplicating rows. Anchovies are stored as unavailable.
 
@@ -75,14 +78,12 @@ Not available yet. A later commit adds the NestJS API, the Next.js app, migratio
 
 ## API
 
-No HTTP API yet. Planned routes, owned by the server:
-
-- `GET /health`
-- `GET /ingredients`
-- `POST /orders`
-- `GET /orders`
-- `GET /orders/:id`
-- `PATCH /orders/:id/status`
+- `GET /health` — returns database reachability. Implemented.
+- `GET /ingredients` — not implemented
+- `POST /orders` — not implemented
+- `GET /orders` — not implemented
+- `GET /orders/:id` — not implemented
+- `PATCH /orders/:id/status` — not implemented
 
 ## Troubleshooting
 

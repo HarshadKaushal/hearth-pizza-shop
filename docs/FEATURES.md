@@ -13,6 +13,7 @@ Nothing is completed. The database container can be started, and that is infrast
 ## Partial
 
 - **Menu data.** Postgres holds 4 crusts, 4 sauces, 4 cheeses, and 11 toppings, with prices in cents. Anchovies are seeded `available = false`. There is no HTTP route and no page, so a customer still cannot see the menu.
+- **API process.** `GET /health` reports whether Postgres answers. CORS is limited to `FRONTEND_ORIGIN`. No catalog or order routes exist, so the shop still cannot be used.
 
 ## Pending
 
