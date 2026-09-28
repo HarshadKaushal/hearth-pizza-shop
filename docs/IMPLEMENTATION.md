@@ -33,6 +33,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 7. Menu page | Next.js shell renders the catalog, including unavailable items | Implementation, features, philosophy, README |
 | 8. Builder and checkout | Preview total in the browser; only a matching quote is stored | Implementation, features, philosophy, README |
 | 9. Confirmation and kitchen | The customer can read the ticket; the kitchen can move status | Implementation, features, philosophy, README |
+| 10. Full Compose stack | Postgres, API, and web run from one Compose file. Migrations and seed run on API start. | Implementation, features, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -43,10 +44,13 @@ Later rows are added in the commit that creates them. They are not backfilled.
 - **Health has to fail closed.** A process that is up while Postgres is down is not healthy. `GET /health` runs `SELECT 1` and returns 503 if that query throws, instead of always returning 200.
 - **Two layers reject a bad pizza.** The DTO refuses an empty order, a missing delivery address, and more than 11 ingredient ids. `pricePizza` then refuses the shop rules (one crust, one sauce, one cheese, duplicates, unavailable rows). A request can fail in either layer. The pricing function is covered by `npm test` without a database; the HTTP path was checked with a real medium pizza at 1700 cents, a 409 on a quote of 1 cent, and a 400 when Anchovies were included.
 - **Status updates can race.** Two kitchen clicks can both read `RECEIVED`. The write is `updateMany` where the id and the previously read status still match. If the count is not 1, the API returns 409 and asks for a refresh instead of overwriting a newer status.
+- **`next dev` accepted a quote check that `next build` rejected.** `"cents" in quote` did not narrow for the production typecheck, which reported the other branch as possibly undefined. The preview result is now `{ ok: true, cents } | { ok: false, error }`. Dev mode had already been used to place an order, so this only showed up when the frontend image ran `next build`.
+- **The browser and the Next.js server need different API hosts.** Inside Compose, server rendering calls `http://backend:3001` via `API_URL`. The browser calls `http://localhost:3001` via `NEXT_PUBLIC_API_URL`, which is fixed when the image is built. One URL cannot serve both.
+- **The container clock is UTC.** Formatting the order time during server render showed 11:02 AM for an order placed in the afternoon locally. The confirmation page now formats that timestamp in the browser.
 
 ## Trade-offs
 
 - **Docs start incomplete on purpose.** The README says only what the current commit can run. Pretending a later page exists would make the commit a lie.
-- **Compose contains only Postgres.** API and web services arrive with their Dockerfiles.
+- **Compose runs the database, the API, and the web app.** The API image applies migrations and the idempotent seed before it listens. Dev dependencies stay in that image so `tsx` can run the seed. A smaller production image was not split out.
 - **The browser previews a total with a copy of the formula.** `frontend/src/lib/pricing.ts` repeats the size bases and the one-of-each rules so the tray is not blank. It is not imported by the API. `POST /orders` still recomputes. A mismatch returns 409, and the checkout button retries with `serverTotalCents`. The cost is two copies that can drift. The server copy is the one that charges.
 - **No auth, payments, or websockets.** Recorded as pending features. See [FEATURES.md](FEATURES.md).

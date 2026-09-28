@@ -32,7 +32,7 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
   const quote = quotePizza(size, selected, ingredients);
   const draftTotal = draft.reduce((sum, pizza) => {
     const priced = quotePizza(pizza.size, pizza.ingredientIds, ingredients);
-    return sum + ("cents" in priced ? priced.cents : 0);
+    return sum + (priced.ok ? priced.cents : 0);
   }, 0);
 
   const byCategory = useMemo(() => {
@@ -59,7 +59,7 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
   }
 
   function addPizza() {
-    if (!("cents" in quote)) {
+    if (!quote.ok) {
       return;
     }
     const next = [
@@ -163,9 +163,9 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
 
       <aside className="tray">
         <p className="kicker">This pizza</p>
-        <p className="total">{"cents" in quote ? formatCents(quote.cents) : "Choose the base"}</p>
-        {"error" in quote ? <p className="hint">{quote.error}</p> : null}
-        <button type="button" className="primary" disabled={"error" in quote} onClick={addPizza}>
+        <p className="total">{quote.ok ? formatCents(quote.cents) : "Choose the base"}</p>
+        {!quote.ok ? <p className="hint">{quote.error}</p> : null}
+        <button type="button" className="primary" disabled={!quote.ok} onClick={addPizza}>
           Add to the order
         </button>
 
@@ -181,7 +181,7 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
                   <span>{SIZE_LABEL[pizza.size]}</span>
                 </div>
                 <div>
-                  <span>{"cents" in priced ? formatCents(priced.cents) : "—"}</span>
+                  <span>{priced.ok ? formatCents(priced.cents) : "—"}</span>
                   <button type="button" onClick={() => removePizza(pizza.key)}>
                     Remove
                   </button>

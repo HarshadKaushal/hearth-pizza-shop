@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PlacedAt } from "@/components/PlacedAt";
 import { formatCents } from "@/lib/money";
 import { fetchOrder } from "@/lib/orders";
 import { SIZE_LABEL } from "@/lib/pricing";
@@ -18,11 +19,6 @@ export default async function OrderConfirmationPage({
     notFound();
   }
 
-  const placed = new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(order.createdAt));
-
   return (
     <div className="page narrow">
       <section className="intro">
@@ -30,7 +26,7 @@ export default async function OrderConfirmationPage({
         <h1>{order.customerName}, the kitchen has it.</h1>
         <p className="lede">
           {STATUS_LABEL[order.status]} · {order.fulfillment === "DELIVERY" ? "Delivery" : "Pickup"} ·{" "}
-          {placed}
+          <PlacedAt iso={order.createdAt} />
         </p>
       </section>
       <article className="receipt">

@@ -32,7 +32,7 @@ export function CheckoutForm({ ingredients }: { ingredients: Ingredient[] }) {
     () =>
       draft.map((pizza) => {
         const priced = quotePizza(pizza.size, pizza.ingredientIds, ingredients);
-        return { pizza, cents: "cents" in priced ? priced.cents : null };
+        return { pizza, cents: priced.ok ? priced.cents : null };
       }),
     [draft, ingredients],
   );

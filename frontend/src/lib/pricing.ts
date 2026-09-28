@@ -18,9 +18,15 @@ export const MAX_TOPPINGS = 8;
 
 const REQUIRED: IngredientCategory[] = ["CRUST", "SAUCE", "CHEESE"];
 
-export function quotePizza(size: PizzaSize, ingredientIds: string[], catalog: Ingredient[]) {
+export type PizzaQuote = { ok: true; cents: number } | { ok: false; error: string };
+
+export function quotePizza(
+  size: PizzaSize,
+  ingredientIds: string[],
+  catalog: Ingredient[],
+): PizzaQuote {
   if (new Set(ingredientIds).size !== ingredientIds.length) {
-    return { error: "Each ingredient can be chosen once." };
+    return { ok: false, error: "Each ingredient can be chosen once." };
   }
 
   const byId = new Map(catalog.map((item) => [item.id, item]));
@@ -28,10 +34,10 @@ export function quotePizza(size: PizzaSize, ingredientIds: string[], catalog: In
   for (const id of ingredientIds) {
     const item = byId.get(id);
     if (!item) {
-      return { error: "One of the ingredients is not on the menu." };
+      return { ok: false, error: "One of the ingredients is not on the menu." };
     }
     if (!item.available) {
-      return { error: `${item.name} is off the board.` };
+      return { ok: false, error: `${item.name} is off the board.` };
     }
     chosen.push(item);
   }
@@ -39,16 +45,16 @@ export function quotePizza(size: PizzaSize, ingredientIds: string[], catalog: In
   for (const category of REQUIRED) {
     const count = chosen.filter((item) => item.category === category).length;
     if (count !== 1) {
-      return { error: "Choose one crust, one sauce, and one cheese." };
+      return { ok: false, error: "Choose one crust, one sauce, and one cheese." };
     }
   }
 
   const toppings = chosen.filter((item) => item.category === "TOPPING");
   if (toppings.length > MAX_TOPPINGS) {
-    return { error: "Eight toppings is the limit." };
+    return { ok: false, error: "Eight toppings is the limit." };
   }
 
   const cents =
     SIZE_BASE_CENTS[size] + chosen.reduce((sum, item) => sum + item.priceCents, 0);
-  return { cents };
+  return { ok: true, cents };
 }

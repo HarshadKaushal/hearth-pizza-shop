@@ -15,13 +15,14 @@ Status words mean the following.
 
 - **Place an order in the browser.** Build, checkout, and `/orders/:id` work together. The worked example stored at 1700 cents. The confirmation page lists each snapshot and the status. After the kitchen marked that ticket preparing, a reload of the confirmation showed Preparing.
 - **Kitchen board.** `/kitchen` lists tickets newest first and only offers the next legal statuses. Moving the newest ticket from Received to Preparing updated the board without a second manual refresh. Unknown order ids on the confirmation route return 404.
+- **Full Docker stack.** `docker compose up --build` starts Postgres, runs migrations and the seed inside the API container, and serves the site on port 3000. Against that stack, the menu showed Anchovies as off the board, and a browser checkout stored a $13.50 pickup for Nia Cole.
 
 ## Partial
 
 Nothing is partial.
 
 ## Pending
-- **Full Docker stack.** One Compose command will run Postgres, the API, and the web app. The apps run on the host. Dockerfiles are not written yet.
+
 - **Customer accounts.** Out of scope for this assignment. Not scheduled.
 - **Card payments.** Out of scope. An order is a request to the restaurant, not a charge.
 - **Realtime kitchen updates.** Out of scope. The board refreshes on a timer. Push updates are not planned.
