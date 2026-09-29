@@ -34,6 +34,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 8. Builder and checkout | Preview total in the browser; only a matching quote is stored | Implementation, features, philosophy, README |
 | 9. Confirmation and kitchen | The customer can read the ticket; the kitchen can move status | Implementation, features, philosophy, README |
 | 10. Full Compose stack | Postgres, API, and web run from one Compose file. Migrations and seed run on API start. | Implementation, features, README |
+| 11. Backend tsconfig | Drop `"baseUrl": "./"` so TypeScript 6 stops warning when no `paths` are used | Implementation |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -47,6 +48,7 @@ Later rows are added in the commit that creates them. They are not backfilled.
 - **`next dev` accepted a quote check that `next build` rejected.** `"cents" in quote` did not narrow for the production typecheck, which reported the other branch as possibly undefined. The preview result is now `{ ok: true, cents } | { ok: false, error }`. Dev mode had already been used to place an order, so this only showed up when the frontend image ran `next build`.
 - **The browser and the Next.js server need different API hosts.** Inside Compose, server rendering calls `http://backend:3001` via `API_URL`. The browser calls `http://localhost:3001` via `NEXT_PUBLIC_API_URL`, which is fixed when the image is built. One URL cannot serve both.
 - **The container clock is UTC.** Formatting the order time during server render showed 11:02 AM for an order placed in the afternoon locally. The confirmation page now formats that timestamp in the browser.
+- **TypeScript 6 deprecates `baseUrl` alone.** `"baseUrl": "./"` with no `paths` map emitted TS5101/TS5102 on `tsc --noEmit`. Backend imports are already relative, so the option was removed instead of adding a dummy path map.
 
 ## Trade-offs
 
