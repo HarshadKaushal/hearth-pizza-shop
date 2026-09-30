@@ -1,8 +1,11 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
+export type Role = "CUSTOMER" | "KITCHEN";
+
 export type AuthToken = {
   id: string;
   email: string;
+  role: Role;
 };
 
 type Payload = AuthToken & { exp: number };
@@ -27,6 +30,7 @@ export function issueToken(user: AuthToken) {
     JSON.stringify({
       id: user.id,
       email: user.email,
+      role: user.role,
       exp: Math.floor(Date.now() / 1000) + TTL_SECONDS,
     }),
   );
@@ -44,8 +48,8 @@ export function readToken(token: string): AuthToken {
     throw new Error("Bad token signature.");
   }
   const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as Payload;
-  if (!payload.id || !payload.email || payload.exp * 1000 < Date.now()) {
+  if (!payload.id || !payload.email || (payload.role !== "CUSTOMER" && payload.role !== "KITCHEN") || payload.exp * 1000 < Date.now()) {
     throw new Error("Expired token.");
   }
-  return { id: payload.id, email: payload.email };
+  return { id: payload.id, email: payload.email, role: payload.role };
 }

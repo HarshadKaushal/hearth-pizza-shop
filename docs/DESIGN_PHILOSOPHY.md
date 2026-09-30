@@ -21,7 +21,7 @@ The storefront is a client of those modules. It formats cents and groups rows in
 - Float or decimal money in application code.
 - Trusting `total` from the request body.
 - Rewriting past orders when the menu changes.
-- Accounts, sessions, or roles that the assignment does not ask for.
+- A third role beyond customer and kitchen. Signup is a customer. The seeded kitchen account runs the board and the menu edits.
 - A kitchen channel that needs a websocket server. The board polls `GET /orders` every five seconds. The buttons only offer legal next statuses; `PATCH` still rejects anything else.
 - Hiding scope. Pending work stays written down in [FEATURES.md](FEATURES.md).
 

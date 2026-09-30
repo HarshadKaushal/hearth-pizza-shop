@@ -1,5 +1,11 @@
 import { OrderStatus } from "@prisma/client";
 
+export const ACTIVE_KITCHEN_STATUSES: readonly OrderStatus[] = [
+  OrderStatus.RECEIVED,
+  OrderStatus.PREPARING,
+  OrderStatus.READY,
+];
+
 const ALLOWED: Record<OrderStatus, readonly OrderStatus[]> = {
   RECEIVED: [OrderStatus.PREPARING, OrderStatus.CANCELLED],
   PREPARING: [OrderStatus.READY, OrderStatus.CANCELLED],

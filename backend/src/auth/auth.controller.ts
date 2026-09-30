@@ -1,8 +1,8 @@
+import { loginSchema, signupSchema, type LoginValues, type SignupValues } from "@hearth/shared";
 import { Body, Controller, Get, HttpCode, Post, Req, UseGuards } from "@nestjs/common";
+import { ZodValidationPipe } from "../validation.pipe";
 import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./auth.service";
-import { LoginDto } from "./login.dto";
-import { SignupDto } from "./signup.dto";
 import { AuthToken } from "./token";
 
 @Controller("auth")
@@ -11,13 +11,13 @@ export class AuthController {
 
   @Post("signup")
   @HttpCode(201)
-  signup(@Body() dto: SignupDto) {
+  signup(@Body(new ZodValidationPipe(signupSchema)) dto: SignupValues) {
     return this.auth.signup(dto);
   }
 
   @Post("login")
   @HttpCode(200)
-  login(@Body() dto: LoginDto) {
+  login(@Body(new ZodValidationPipe(loginSchema)) dto: LoginValues) {
     return this.auth.login(dto);
   }
 

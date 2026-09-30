@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { readDraft, writeDraft, type DraftPizza } from "@/lib/draft";
 import { formatCents } from "@/lib/money";
 import {
+  MAX_PIZZAS,
   MAX_TOPPINGS,
   quotePizza,
   SIZE_BASE_CENTS,
@@ -59,7 +60,7 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
   }
 
   function addPizza() {
-    if (!quote.ok) {
+    if (!quote.ok || draft.length >= MAX_PIZZAS) {
       return;
     }
     const next = [
@@ -165,9 +166,10 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
         <p className="kicker">This pizza</p>
         <p className="total">{quote.ok ? formatCents(quote.cents) : "Choose the base"}</p>
         {!quote.ok ? <p className="hint">{quote.error}</p> : null}
-        <button type="button" className="primary" disabled={!quote.ok} onClick={addPizza}>
+        <button type="button" className="primary" disabled={!quote.ok || draft.length >= MAX_PIZZAS} onClick={addPizza}>
           Add to the order
         </button>
+        {draft.length >= MAX_PIZZAS ? <p className="hint">Ten pizzas is the limit.</p> : null}
 
         <h2>Order</h2>
         {draft.length === 0 ? <p className="hint">No pizzas yet.</p> : null}

@@ -4,6 +4,7 @@ export type SessionUser = {
   id: string;
   email: string;
   name: string;
+  role: "CUSTOMER" | "KITCHEN";
 };
 
 export function getToken() {

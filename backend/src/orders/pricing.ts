@@ -1,13 +1,13 @@
+import { MAX_PIZZAS, MAX_TOPPINGS } from "@hearth/shared";
 import { IngredientCategory, PizzaSize } from "@prisma/client";
+
+export { MAX_PIZZAS, MAX_TOPPINGS };
 
 export const SIZE_BASE_CENTS: Record<PizzaSize, number> = {
   SMALL: 800,
   MEDIUM: 1200,
   LARGE: 1600,
 };
-
-export const MAX_TOPPINGS = 8;
-export const MAX_PIZZAS = 10;
 
 const SIZE_LABEL: Record<PizzaSize, string> = {
   SMALL: "Small",

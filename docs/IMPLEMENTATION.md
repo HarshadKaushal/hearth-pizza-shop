@@ -36,6 +36,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 10. Full Compose stack | Postgres, API, and web run from one Compose file. Migrations and seed run on API start. | Implementation, features, README |
 | 11. Backend tsconfig | Drop `"baseUrl": "./"` so TypeScript 6 stops warning when no `paths` are used | Implementation |
 | 12. Accounts | User table, password hash, order `userId` foreign key, login pages, my orders | Implementation, features, domain, README |
+| 13. Shared checks and kitchen role | One Zod schema for the form and the API, 10-digit phone, kitchen role, menu edits, in-progress pages, order indexes | Implementation, features, domain, philosophy, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -50,10 +51,15 @@ Later rows are added in the commit that creates them. They are not backfilled.
 - **The browser and the Next.js server need different API hosts.** Inside Compose, server rendering calls `http://backend:3001` via `API_URL`. The browser calls `http://localhost:3001` via `NEXT_PUBLIC_API_URL`, which is fixed when the image is built. One URL cannot serve both.
 - **The container clock is UTC.** Formatting the order time during server render showed 11:02 AM for an order placed in the afternoon locally. The confirmation page now formats that timestamp in the browser.
 - **TypeScript 6 deprecates `baseUrl` alone.** `"baseUrl": "./"` with no `paths` map emitted TS5101/TS5102 on `tsc --noEmit`. Backend imports are already relative, so the option was removed instead of adding a dummy path map.
+- **A letter phone passed the page and still created an order.** HTML checks never run for a direct `POST`. The shared schema now requires 10 digits on both sides, so that request returns 400 and writes nothing.
+- **Checkout kept a stale server total.** After a 409, `serverQuote` replaced the preview until the page was left. The stored figure is cleared when the preview total changes, and kept when the tray is unchanged so the retry can accept the server price.
+- **Compose builds could not see a shared folder.** The API and web images used their own directories as context. Both Dockerfiles now build from the repo root so `@hearth/shared` is present at `npm ci`.
 
 ## Trade-offs
 
 - **Docs start incomplete on purpose.** The README says only what the current commit can run. Pretending a later page exists would make the commit a lie.
 - **Compose runs the database, the API, and the web app.** The API image applies migrations and the idempotent seed before it listens. Dev dependencies stay in that image so `tsx` can run the seed. A smaller production image was not split out.
 - **The browser previews a total with a copy of the formula.** `frontend/src/lib/pricing.ts` repeats the size bases and the one-of-each rules so the tray is not blank. It is not imported by the API. `POST /orders` still recomputes. A mismatch returns 409, and the checkout button retries with `serverTotalCents`. The cost is two copies that can drift. The server copy is the one that charges.
-- **No auth, payments, or websockets.** Recorded as pending features. See [FEATURES.md](FEATURES.md).
+- **No payments or websockets.** Recorded as pending features. See [FEATURES.md](FEATURES.md). Customer and kitchen are the only roles.
+- **Form rules and API rules are one package.** `@hearth/shared` holds the Zod schemas. The storefront runs them before `fetch`. Nest runs the same schemas on signup, login, orders, and ingredient writes. Status updates still use the class-validator DTO. A letter phone fails in the browser and again on `POST /orders`.
+- **The kitchen list is a page of in-progress tickets.** Completed and cancelled orders stay out of the five-second poll. Twenty rows is the page size. `createdAt` with `status`, plus `orderId` and `orderPizzaId`, are indexed so that poll does not scan the history.

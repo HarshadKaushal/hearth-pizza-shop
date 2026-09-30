@@ -1,4 +1,5 @@
 import { IngredientCategory, PrismaClient } from "@prisma/client";
+import { hashPassword } from "../src/auth/password";
 
 const prisma = new PrismaClient();
 
@@ -42,7 +43,24 @@ const ingredients: SeedIngredient[] = [
   },
 ];
 
+const KITCHEN_EMAIL = "kitchen@hearth.test";
+const KITCHEN_PASSWORD = "hearth-kitchen";
+
 async function main() {
+  const kitchen = await prisma.user.findUnique({ where: { email: KITCHEN_EMAIL } });
+  if (!kitchen) {
+    await prisma.user.create({
+      data: {
+        email: KITCHEN_EMAIL,
+        name: "Kitchen",
+        passwordHash: await hashPassword(KITCHEN_PASSWORD),
+        role: "KITCHEN",
+      },
+    });
+  } else if (kitchen.role !== "KITCHEN") {
+    await prisma.user.update({ where: { email: KITCHEN_EMAIL }, data: { role: "KITCHEN" } });
+  }
+
   for (const ingredient of ingredients) {
     await prisma.ingredient.upsert({
       where: { name: ingredient.name },

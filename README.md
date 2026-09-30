@@ -106,14 +106,18 @@ The browser cannot resolve the Compose service name `backend`. Server-rendered p
 
 - `GET /health` — database reachability. `200` when Postgres answers, `503` when it does not.
 - `GET /ingredients` — every menu row, including unavailable items. `priceCents` is an integer. No dollar strings.
-- `POST /auth/signup` — body `{ "name", "email", "password" }`. Returns `{ "token", "user": { "id", "email", "name" } }`. Duplicate email returns `409`.
-- `POST /auth/login` — body `{ "email", "password" }`. Wrong credentials return `401`.
+- `POST /auth/signup` — body `{ "name", "email", "password" }`. Creates a customer. Returns `{ "token", "user": { "id", "email", "name", "role" } }`. Duplicate email returns `409`.
+- `POST /auth/login` — body `{ "email", "password" }`. Wrong credentials return `401`. The token includes `role`: `CUSTOMER` or `KITCHEN`.
 - `GET /auth/me` — `Authorization: Bearer <token>`.
-- `POST /orders` — places an order for the logged-in user. Requires `Authorization: Bearer <token>`. Missing or bad token returns `401` and writes nothing. The server recomputes the total. A quote that does not match returns `409` and `{ "serverTotalCents": <number> }` and writes nothing. Illegal pizzas return `400`. The order stores `userId`.
+- `POST /orders` — places an order for the logged-in user. Requires `Authorization: Bearer <token>`. Missing or bad token returns `401` and writes nothing. Phone must be 10 digits. The server recomputes the total. A quote that does not match returns `409` and `{ "serverTotalCents": <number> }` and writes nothing. Illegal pizzas return `400`. The order stores `userId`.
 - `GET /orders/mine` — that user's orders, newest first. Requires the same bearer token.
-- `GET /orders` — kitchen list, newest first, with pizzas and ingredient snapshots.
-- `GET /orders/:id` — one order, or `404`.
-- `PATCH /orders/:id/status` — body `{ "status": "PREPARING" }`. Illegal jumps return `409`. Terminal orders do not move.
+- `GET /orders` — kitchen only. In-progress tickets, 20 per page (`?page=1`), newest first. A customer token returns `403`.
+- `GET /orders/:id` — one order, or `404`. No login required.
+- `PATCH /orders/:id/status` — kitchen only. Body `{ "status": "PREPARING" }`. Illegal jumps return `409`. Terminal orders do not move.
+- `POST /ingredients` — kitchen only. Body `{ "name", "description", "category", "priceCents" }`. Category is `CRUST`, `SAUCE`, `CHEESE`, or `TOPPING`. Duplicate name returns `409`.
+- `PATCH /ingredients/:id` — kitchen only. Body may set `priceCents` and `available`.
+
+The seeded kitchen login is `kitchen@hearth.test` / `hearth-kitchen`. Signup cannot choose the kitchen role.
 
 Example body for the medium pizza in the domain notes (`1700` cents). Replace the ids with values from `GET /ingredients`.
 

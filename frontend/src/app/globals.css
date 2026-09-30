@@ -308,6 +308,7 @@ legend,
 
 .choices button,
 .ticket button,
+.menu-rows button,
 .primary {
   font: inherit;
   cursor: pointer;
@@ -349,6 +350,16 @@ legend,
   background: var(--card);
   color: var(--ink);
   font: inherit;
+}
+
+.field-error {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--tomato);
+  font-size: 0.92rem;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
 }
 
 .tray,
@@ -447,6 +458,79 @@ legend,
 .line-total {
   margin: 0;
   text-align: right;
+}
+
+.menu-editor {
+  margin-top: 2.5rem;
+}
+
+.menu-editor h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 520;
+}
+
+.menu-add {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+  align-items: end;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.menu-rows li {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(8rem, 0.8fr) auto auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.menu-add .primary {
+  width: auto;
+}
+
+.menu-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.menu-rows li {
+  padding: 0.75rem 0.9rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.menu-rows li span,
+.menu-rows li strong {
+  display: block;
+}
+
+.menu-rows li span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.field select {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+}
+
+@media (max-width: 800px) {
+  .menu-rows li {
+    grid-template-columns: 1fr;
+  }
 }
 
 .tickets {

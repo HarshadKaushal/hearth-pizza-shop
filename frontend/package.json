@@ -8,9 +8,13 @@
     "start": "next start --port 3000"
   },
   "dependencies": {
+    "@hearth/shared": "file:../shared",
+    "@hookform/resolvers": "^5.9.1",
     "next": "^15.5.4",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-hook-form": "^7.89.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",

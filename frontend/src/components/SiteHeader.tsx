@@ -3,21 +3,37 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { clearToken, getToken } from "@/lib/auth";
+import { authHeaders, clearToken, getToken, type SessionUser } from "@/lib/auth";
+import { apiBase } from "@/lib/money";
 
 const LINKS = [
   { href: "/", label: "Menu" },
   { href: "/build", label: "Build" },
-  { href: "/kitchen", label: "Kitchen" },
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const [signedIn, setSignedIn] = useState(false);
+  const [role, setRole] = useState<SessionUser["role"] | null>(null);
 
   useEffect(() => {
-    setSignedIn(Boolean(getToken()));
+    const token = getToken();
+    setSignedIn(Boolean(token));
+    if (!token) {
+      setRole(null);
+      return;
+    }
+    void fetch(`${apiBase()}/auth/me`, { headers: authHeaders(), cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          setRole(null);
+          return;
+        }
+        const body = (await response.json()) as { user?: SessionUser };
+        setRole(body.user?.role ?? null);
+      })
+      .catch(() => setRole(null));
   }, [pathname]);
 
   return (
@@ -37,6 +53,11 @@ export function SiteHeader() {
             {link.label}
           </Link>
         ))}
+        {role === "KITCHEN" ? (
+          <Link href="/kitchen" aria-current={pathname === "/kitchen" ? "page" : undefined}>
+            Kitchen
+          </Link>
+        ) : null}
         {signedIn ? (
           <>
             <Link href="/account" aria-current={pathname === "/account" ? "page" : undefined}>

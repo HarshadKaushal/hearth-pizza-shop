@@ -1,4 +1,7 @@
+import { MAX_PIZZAS, MAX_TOPPINGS } from "@hearth/shared";
 import type { Ingredient, IngredientCategory } from "./types";
+
+export { MAX_PIZZAS, MAX_TOPPINGS };
 
 export type PizzaSize = "SMALL" | "MEDIUM" | "LARGE";
 
@@ -13,8 +16,6 @@ export const SIZE_LABEL: Record<PizzaSize, string> = {
   MEDIUM: "Medium",
   LARGE: "Large",
 };
-
-export const MAX_TOPPINGS = 8;
 
 const REQUIRED: IngredientCategory[] = ["CRUST", "SAUCE", "CHEESE"];
 

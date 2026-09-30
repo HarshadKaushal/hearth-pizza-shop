@@ -1,15 +1,14 @@
+import type { LoginValues, SignupValues } from "@hearth/shared";
 import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { LoginDto } from "./login.dto";
 import { hashPassword, verifyPassword } from "./password";
-import { SignupDto } from "./signup.dto";
 import { AuthToken, issueToken, readToken } from "./token";
 
 @Injectable()
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async signup(dto: SignupDto) {
+  async signup(dto: SignupValues) {
     const email = dto.email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -25,7 +24,7 @@ export class AuthService {
     return this.session(user);
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginValues) {
     const email = dto.email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user || !(await verifyPassword(dto.password, user.passwordHash))) {
@@ -39,7 +38,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException("Log in to continue.");
     }
-    return { id: user.id, email: user.email, name: user.name };
+    return { id: user.id, email: user.email, name: user.name, role: user.role };
   }
 
   authenticate(header: string | undefined): AuthToken {
@@ -54,10 +53,10 @@ export class AuthService {
     }
   }
 
-  private session(user: { id: string; email: string; name: string }) {
+  private session(user: { id: string; email: string; name: string; role: "CUSTOMER" | "KITCHEN" }) {
     return {
-      token: issueToken({ id: user.id, email: user.email }),
-      user: { id: user.id, email: user.email, name: user.name },
+      token: issueToken({ id: user.id, email: user.email, role: user.role }),
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
     };
   }
 }

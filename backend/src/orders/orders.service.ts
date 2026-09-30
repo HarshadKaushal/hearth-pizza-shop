@@ -4,19 +4,19 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import type { OrderValues } from "@hearth/shared";
 import { FulfillmentType } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateOrderDto } from "./create-order.dto";
 import { orderWithPizzas, toOrderResponse } from "./order.presenter";
 import { PizzaPricingError, pricePizza } from "./pricing";
-import { assertStatusTransition, StatusTransitionError } from "./status";
+import { ACTIVE_KITCHEN_STATUSES, assertStatusTransition, StatusTransitionError } from "./status";
 import { UpdateStatusDto } from "./update-status.dto";
 
 @Injectable()
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateOrderDto, userId: string) {
+  async create(dto: OrderValues, userId: string) {
     const ids = [...new Set(dto.pizzas.flatMap((pizza) => pizza.ingredientIds))];
     const catalog = await this.prisma.ingredient.findMany({
       where: { id: { in: ids } },
@@ -76,12 +76,20 @@ export class OrdersService {
     return toOrderResponse(order);
   }
 
-  async list() {
-    const orders = await this.prisma.order.findMany({
-      include: orderWithPizzas,
-      orderBy: { createdAt: "desc" },
-    });
-    return { orders: orders.map(toOrderResponse) };
+  async list(page: number) {
+    const where = { status: { in: [...ACTIVE_KITCHEN_STATUSES] } };
+    const pageSize = 20;
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        include: orderWithPizzas,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+    return { orders: orders.map(toOrderResponse), page, pageSize, total };
   }
 
   async listForUser(userId: string) {

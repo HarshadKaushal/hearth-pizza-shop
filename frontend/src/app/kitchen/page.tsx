@@ -1,4 +1,4 @@
-import { KitchenBoard } from "@/components/KitchenBoard";
+import { KitchenDesk } from "@/components/KitchenDesk";
 
 export default function KitchenPage() {
   return (
@@ -11,7 +11,7 @@ export default function KitchenPage() {
           completed. Nothing moves backward.
         </p>
       </section>
-      <KitchenBoard />
+      <KitchenDesk />
     </div>
   );
 }

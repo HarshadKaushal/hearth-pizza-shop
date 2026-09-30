@@ -8,7 +8,7 @@ Shop name: **Hearth**. One location. The currency is US dollars, stored as cents
 - The customer signs up with an email and password. The API stores a generated user id and a password hash, never the password. Logging in returns a token the browser keeps.
 - A new order stores that user id on the order row. Orders placed before accounts existed have a null user id and do not appear on anyone's account page.
 - "Place an order with the restaurant" means the kitchen receives a durable order. It does not mean a payment is captured.
-- Staff using the kitchen board are on a trusted network. The status endpoint is not behind a customer login.
+- Kitchen staff are a role on the user account, not a separate login system. Signup creates a customer. The seed creates one kitchen user. Only that role can list in-progress tickets, move status, change a price, change availability, or add an ingredient in one of the four existing categories.
 - Ingredient prices are per pizza, added once. They are not multiplied by size. Size changes only the base.
 - Unavailable means the shop cannot put that ingredient on a new pizza. It does not delete old orders that used it.
 

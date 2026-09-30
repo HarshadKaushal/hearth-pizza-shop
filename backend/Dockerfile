@@ -1,11 +1,15 @@
 FROM node:22-alpine
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-COPY prisma ./prisma
+COPY shared /shared
+WORKDIR /shared
+RUN npm ci
+WORKDIR /app
+COPY backend/package.json backend/package-lock.json ./
+COPY backend/prisma ./prisma
 RUN npm ci
 
-COPY . .
+COPY backend/ .
 RUN npm run build
 
 EXPOSE 3001
