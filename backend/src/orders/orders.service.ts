@@ -16,7 +16,7 @@ import { UpdateStatusDto } from "./update-status.dto";
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateOrderDto) {
+  async create(dto: CreateOrderDto, userId: string) {
     const ids = [...new Set(dto.pizzas.flatMap((pizza) => pizza.ingredientIds))];
     const catalog = await this.prisma.ingredient.findMany({
       where: { id: { in: ids } },
@@ -51,6 +51,7 @@ export class OrdersService {
           address: dto.fulfillment === FulfillmentType.DELIVERY ? dto.address!.trim() : null,
           notes: dto.notes?.trim() || null,
           totalCents,
+          userId,
           pizzas: {
             create: priced.map((pizza) => ({
               size: pizza.size,
@@ -77,6 +78,15 @@ export class OrdersService {
 
   async list() {
     const orders = await this.prisma.order.findMany({
+      include: orderWithPizzas,
+      orderBy: { createdAt: "desc" },
+    });
+    return { orders: orders.map(toOrderResponse) };
+  }
+
+  async listForUser(userId: string) {
+    const orders = await this.prisma.order.findMany({
+      where: { userId },
       include: orderWithPizzas,
       orderBy: { createdAt: "desc" },
     });

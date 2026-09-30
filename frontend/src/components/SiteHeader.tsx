@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { clearToken, getToken } from "@/lib/auth";
 
 const LINKS = [
   { href: "/", label: "Menu" },
@@ -11,6 +13,12 @@ const LINKS = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [signedIn, setSignedIn] = useState(false);
+
+  useEffect(() => {
+    setSignedIn(Boolean(getToken()));
+  }, [pathname]);
 
   return (
     <header className="site-header">
@@ -29,6 +37,34 @@ export function SiteHeader() {
             {link.label}
           </Link>
         ))}
+        {signedIn ? (
+          <>
+            <Link href="/account" aria-current={pathname === "/account" ? "page" : undefined}>
+              My orders
+            </Link>
+            <button
+              type="button"
+              className="nav-button"
+              onClick={() => {
+                clearToken();
+                setSignedIn(false);
+                router.push("/");
+                router.refresh();
+              }}
+            >
+              Log out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link href="/login" aria-current={pathname === "/login" ? "page" : undefined}>
+              Log in
+            </Link>
+            <Link href="/signup" aria-current={pathname === "/signup" ? "page" : undefined}>
+              Sign up
+            </Link>
+          </>
+        )}
       </nav>
     </header>
   );

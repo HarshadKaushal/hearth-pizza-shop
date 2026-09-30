@@ -78,6 +78,107 @@ nav a:hover {
   color: var(--tomato);
 }
 
+.nav-button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  color: var(--tomato);
+}
+
+.order-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.order-list li {
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--line, #e4d8cc);
+}
+
+.order-list a {
+  color: inherit;
+}
+
+.auth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 420px);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.auth-aside h1 {
+  max-width: 10ch;
+}
+
+.auth-points {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+  max-width: 28rem;
+}
+
+.auth-points li {
+  padding-left: 1rem;
+  border-left: 3px solid var(--tomato);
+}
+
+.auth-panel {
+  padding: 1.35rem 1.25rem 1.2rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.auth-panel h2 {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.7rem;
+  font-weight: 520;
+}
+
+.password-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.password-row input {
+  margin-top: 0;
+}
+
+.text-button {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.15rem;
+  border: 0;
+  background: none;
+  color: var(--tomato);
+  font: inherit;
+  cursor: pointer;
+}
+
+.auth-panel .field input:focus {
+  outline: 2px solid rgba(180, 51, 26, 0.35);
+  border-color: var(--tomato);
+}
+
+@media (max-width: 800px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
 main {
   padding: 2.5rem 6vw 4rem;
 }

@@ -35,6 +35,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 9. Confirmation and kitchen | The customer can read the ticket; the kitchen can move status | Implementation, features, philosophy, README |
 | 10. Full Compose stack | Postgres, API, and web run from one Compose file. Migrations and seed run on API start. | Implementation, features, README |
 | 11. Backend tsconfig | Drop `"baseUrl": "./"` so TypeScript 6 stops warning when no `paths` are used | Implementation |
+| 12. Accounts | User table, password hash, order `userId` foreign key, login pages, my orders | Implementation, features, domain, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 

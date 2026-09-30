@@ -1,4 +1,7 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { AuthGuard } from "../auth/auth.guard";
+import { CurrentUser } from "../auth/current-user.decorator";
+import { AuthToken } from "../auth/token";
 import { CreateOrderDto } from "./create-order.dto";
 import { OrdersService } from "./orders.service";
 import { UpdateStatusDto } from "./update-status.dto";
@@ -9,8 +12,15 @@ export class OrdersController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() dto: CreateOrderDto) {
-    return this.orders.create(dto);
+  @UseGuards(AuthGuard)
+  create(@Body() dto: CreateOrderDto, @CurrentUser() user: AuthToken) {
+    return this.orders.create(dto, user.id);
+  }
+
+  @Get("mine")
+  @UseGuards(AuthGuard)
+  mine(@CurrentUser() user: AuthToken) {
+    return this.orders.listForUser(user.id);
   }
 
   @Get()

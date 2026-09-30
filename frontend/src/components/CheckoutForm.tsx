@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { clearDraft, readDraft } from "@/lib/draft";
+import { authHeaders, getToken } from "@/lib/auth";
 import { apiBase, formatCents } from "@/lib/money";
 import { quotePizza, SIZE_LABEL } from "@/lib/pricing";
 import type { Ingredient } from "@/lib/types";
@@ -22,10 +23,27 @@ export function CheckoutForm({ ingredients }: { ingredients: Ingredient[] }) {
   const [error, setError] = useState<string | null>(null);
   const [serverQuote, setServerQuote] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
     setDraft(readDraft());
     setHydrated(true);
+    const token = getToken();
+    setSignedIn(Boolean(token));
+    if (!token) {
+      return;
+    }
+    void fetch(`${apiBase()}/auth/me`, { headers: authHeaders(), cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) {
+          return;
+        }
+        const body = (await response.json()) as { user?: { name?: string } };
+        if (body.user?.name) {
+          setName((current) => current || body.user?.name || "");
+        }
+      })
+      .catch(() => undefined);
   }, []);
 
   const lines = useMemo(
@@ -45,7 +63,7 @@ export function CheckoutForm({ ingredients }: { ingredients: Ingredient[] }) {
     try {
       const response = await fetch(`${apiBase()}/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({
           customerName: name.trim(),
           phone: phone.trim(),
@@ -65,6 +83,11 @@ export function CheckoutForm({ ingredients }: { ingredients: Ingredient[] }) {
         message?: string | string[];
         serverTotalCents?: number;
       };
+      if (response.status === 401) {
+        setError("Log in before placing an order.");
+        setPending(false);
+        return;
+      }
       if (response.status === 409 && typeof body.serverTotalCents === "number") {
         setServerQuote(body.serverTotalCents);
         setError(
@@ -166,9 +189,15 @@ export function CheckoutForm({ ingredients }: { ingredients: Ingredient[] }) {
           <input maxLength={280} value={notes} onChange={(event) => setNotes(event.target.value)} />
         </label>
         {error ? <p className="notice">{error}</p> : null}
-        <button className="primary" type="submit" disabled={!ready || pending}>
-          {pending ? "Sending…" : `Place order · ${formatCents(quotedTotal)}`}
+        <button className="primary" type="submit" disabled={!ready || pending || !signedIn}>
+          {pending ? "Sending…" : signedIn ? `Place order · ${formatCents(quotedTotal)}` : "Log in to place this order"}
         </button>
+        {!signedIn ? (
+          <p className="hint">
+            <Link href="/login?next=/checkout">Log in</Link> or <Link href="/signup?next=/checkout">sign up</Link> so this
+            order is saved to your account.
+          </p>
+        ) : null}
       </section>
     </form>
   );

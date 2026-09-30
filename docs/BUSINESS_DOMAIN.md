@@ -5,9 +5,10 @@ Shop name: **Hearth**. One location. The currency is US dollars, stored as cents
 ## Assumptions
 
 - There is one menu for everyone. No lunch pricing, no loyalty, no coupons.
-- The customer does not have an account. The order carries a name and a phone number so the counter can call out the pizza.
+- The customer signs up with an email and password. The API stores a generated user id and a password hash, never the password. Logging in returns a token the browser keeps.
+- A new order stores that user id on the order row. Orders placed before accounts existed have a null user id and do not appear on anyone's account page.
 - "Place an order with the restaurant" means the kitchen receives a durable order. It does not mean a payment is captured.
-- Staff using the kitchen board are on a trusted network. The status endpoint is not behind a login in this version. That is a known limit, not an oversight, and it is listed under pending accounts in the feature notes.
+- Staff using the kitchen board are on a trusted network. The status endpoint is not behind a customer login.
 - Ingredient prices are per pizza, added once. They are not multiplied by size. Size changes only the base.
 - Unavailable means the shop cannot put that ingredient on a new pizza. It does not delete old orders that used it.
 

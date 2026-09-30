@@ -95,6 +95,7 @@ Copy [.env.example](.env.example) for notes, [backend/.env.example](backend/.env
 | Name | Purpose | Example |
 | --- | --- | --- |
 | `DATABASE_URL` | Prisma connection. Inside Compose the host is `postgres`, not `localhost`. | `postgresql://hearth:hearth@localhost:5432/hearth?schema=public` |
+| `JWT_SECRET` | Signs login tokens. Compose sets a local default. | `hearth-dev-secret` |
 | `FRONTEND_ORIGIN` | Browser origin allowed by API CORS | `http://localhost:3000` |
 | `NEXT_PUBLIC_API_URL` | API base URL used by the browser. It must be an address the user's machine can open. Compose bakes `http://localhost:3001` in at image build time. | `http://localhost:3001` |
 | `API_URL` | API base URL used by Next.js when it renders on the server. Compose sets `http://backend:3001`. On the host, leave it unset. | `http://backend:3001` |
@@ -105,7 +106,11 @@ The browser cannot resolve the Compose service name `backend`. Server-rendered p
 
 - `GET /health` — database reachability. `200` when Postgres answers, `503` when it does not.
 - `GET /ingredients` — every menu row, including unavailable items. `priceCents` is an integer. No dollar strings.
-- `POST /orders` — places an order. The server recomputes the total. A quote that does not match returns `409` and `{ "serverTotalCents": <number> }` and writes nothing. Illegal pizzas return `400`.
+- `POST /auth/signup` — body `{ "name", "email", "password" }`. Returns `{ "token", "user": { "id", "email", "name" } }`. Duplicate email returns `409`.
+- `POST /auth/login` — body `{ "email", "password" }`. Wrong credentials return `401`.
+- `GET /auth/me` — `Authorization: Bearer <token>`.
+- `POST /orders` — places an order for the logged-in user. Requires `Authorization: Bearer <token>`. Missing or bad token returns `401` and writes nothing. The server recomputes the total. A quote that does not match returns `409` and `{ "serverTotalCents": <number> }` and writes nothing. Illegal pizzas return `400`. The order stores `userId`.
+- `GET /orders/mine` — that user's orders, newest first. Requires the same bearer token.
 - `GET /orders` — kitchen list, newest first, with pizzas and ingredient snapshots.
 - `GET /orders/:id` — one order, or `404`.
 - `PATCH /orders/:id/status` — body `{ "status": "PREPARING" }`. Illegal jumps return `409`. Terminal orders do not move.
