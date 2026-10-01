@@ -6,6 +6,7 @@ import {
   loginSchema,
   orderSchema,
   signupSchema,
+  suggestionSchema,
   updateIngredientSchema,
 } from "./validation";
 
@@ -155,6 +156,18 @@ describe("order schema", () => {
       pizzas: [pizza],
       extra: true,
     });
+    assert.equal(result.success, false);
+  });
+});
+
+describe("suggestion schema", () => {
+  it("trims a pizza description", () => {
+    const parsed = suggestionSchema.parse({ prompt: "  spicy and crispy  " });
+    assert.equal(parsed.prompt, "spicy and crispy");
+  });
+
+  it("rejects a description that is only a word fragment", () => {
+    const result = suggestionSchema.safeParse({ prompt: "hi" });
     assert.equal(result.success, false);
   });
 });

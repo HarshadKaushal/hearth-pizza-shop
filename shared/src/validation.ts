@@ -112,9 +112,20 @@ export const loginSchema = z
   })
   .strict();
 
+export const suggestionSchema = z
+  .object({
+    prompt: z
+      .string()
+      .trim()
+      .min(3, "Tell the builder a little more about the pizza you want.")
+      .max(280, "Keep the description under 280 characters."),
+  })
+  .strict();
+
 export type SignupValues = z.infer<typeof signupSchema>;
 export type LoginValues = z.infer<typeof loginSchema>;
 export type CheckoutValues = z.infer<typeof checkoutSchema>;
 export type OrderValues = z.infer<typeof orderSchema>;
 export type CreateIngredientValues = z.infer<typeof createIngredientSchema>;
 export type UpdateIngredientValues = z.infer<typeof updateIngredientSchema>;
+export type SuggestionValues = z.infer<typeof suggestionSchema>;

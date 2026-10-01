@@ -10,6 +10,7 @@ Shop name: **Hearth**. One location. The currency is US dollars, stored as cents
 - "Place an order with the restaurant" means the kitchen receives a durable order. It does not mean a payment is captured.
 - Kitchen staff are a role on the user account, not a separate login system. Signup creates a customer. The seed creates one kitchen user. Only that role can list in-progress tickets, move status, change a price, change availability, or add an ingredient in one of the four existing categories.
 - Ingredient prices are per pizza, added once. They are not multiplied by size. Size changes only the base.
+- A craving on the build page can fill one pizza from the available menu. That fill is a draft the customer can still change. It is not an order. A message that is not about a pizza receives one fixed refusal and no menu selection.
 - Unavailable means the shop cannot put that ingredient on a new pizza. It does not delete old orders that used it.
 
 ## Business rules

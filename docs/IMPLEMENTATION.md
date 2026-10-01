@@ -37,6 +37,7 @@ Money is integer cents. The pricing function will live on the server and will be
 | 11. Backend tsconfig | Drop `"baseUrl": "./"` so TypeScript 6 stops warning when no `paths` are used | Implementation |
 | 12. Accounts | User table, password hash, order `userId` foreign key, login pages, my orders | Implementation, features, domain, README |
 | 13. Shared checks and kitchen role | One Zod schema for the form and the API, 10-digit phone, kitchen role, menu edits, in-progress pages, order indexes | Implementation, features, domain, philosophy, README |
+| 14. Menu suggestion | Gemini fills the builder from a craving. Off-topic text gets a fixed refusal. The buttons stay editable | Implementation, features, domain, README |
 
 Later rows are added in the commit that creates them. They are not backfilled.
 
@@ -63,3 +64,4 @@ Later rows are added in the commit that creates them. They are not backfilled.
 - **No payments or websockets.** Recorded as pending features. See [FEATURES.md](FEATURES.md). Customer and kitchen are the only roles.
 - **Form rules and API rules are one package.** `@hearth/shared` holds the Zod schemas. The storefront runs them before `fetch`. Nest runs the same schemas on signup, login, orders, and ingredient writes. Status updates still use the class-validator DTO. A letter phone fails in the browser and again on `POST /orders`.
 - **The kitchen list is a page of in-progress tickets.** Completed and cancelled orders stay out of the five-second poll. Twenty rows is the page size. `createdAt` with `status`, plus `orderId` and `orderPizzaId`, are indexed so that poll does not scan the history.
+- **The suggestion is instructions plus a pizza-only reply, not a fine-tuned model.** Gemini `gemini-3.1-flash-lite` on the free tier receives the live available menu and must return JSON: refused, size, and ingredient ids. The page never shows the model's other words. Unknown ids are dropped, then `pricePizza` must accept the rest. A missing `GEMINI_API_KEY` or an HTTP 429 leaves the manual builder in place. The key stays on the API.

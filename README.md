@@ -96,6 +96,8 @@ Copy [.env.example](.env.example) for notes, [backend/.env.example](backend/.env
 | --- | --- | --- |
 | `DATABASE_URL` | Prisma connection. Inside Compose the host is `postgres`, not `localhost`. | `postgresql://hearth:hearth@localhost:5432/hearth?schema=public` |
 | `JWT_SECRET` | Signs login tokens. Compose sets a local default. | `hearth-dev-secret` |
+| `GEMINI_API_KEY` | Free-tier key for the build-page suggestion. Leave empty to keep suggestions off. Do not commit a real key. | |
+| `GEMINI_MODEL` | Gemini model id. Compose defaults to Flash Lite, which still returns the pizza JSON. | `gemini-3.1-flash-lite` |
 | `FRONTEND_ORIGIN` | Browser origin allowed by API CORS | `http://localhost:3000` |
 | `NEXT_PUBLIC_API_URL` | API base URL used by the browser. It must be an address the user's machine can open. Compose bakes `http://localhost:3001` in at image build time. | `http://localhost:3001` |
 | `API_URL` | API base URL used by Next.js when it renders on the server. Compose sets `http://backend:3001`. On the host, leave it unset. | `http://backend:3001` |
@@ -116,6 +118,7 @@ The browser cannot resolve the Compose service name `backend`. Server-rendered p
 - `PATCH /orders/:id/status` — kitchen only. Body `{ "status": "PREPARING" }`. Illegal jumps return `409`. Terminal orders do not move.
 - `POST /ingredients` — kitchen only. Body `{ "name", "description", "category", "priceCents" }`. Category is `CRUST`, `SAUCE`, `CHEESE`, or `TOPPING`. Duplicate name returns `409`.
 - `PATCH /ingredients/:id` — kitchen only. Body may set `priceCents` and `available`.
+- `POST /suggestions` — body `{ "prompt": "something spicy and crispy" }`. No login. Returns `{ "size", "ingredientIds", "label" }` for one legal pizza, or `400` with a fixed refusal when the prompt is not about a pizza. `503` when `GEMINI_API_KEY` is missing or the free limit is used up. The builder fills its buttons from a success and still lets the customer edit them.
 
 The seeded kitchen login is `kitchen@hearth.test` / `hearth-kitchen`. Signup cannot choose the kitchen role.
 

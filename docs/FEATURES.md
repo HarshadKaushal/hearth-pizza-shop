@@ -18,6 +18,7 @@ Status words mean the following.
 - **Place an order in the browser.** Build, checkout, and `/orders/:id` work together. The worked example stored at 1700 cents. The confirmation page lists each snapshot and the status. After the kitchen marked that ticket preparing, a reload of the confirmation showed Preparing.
 - **Kitchen board.** `/kitchen` is linked only for the kitchen role. It lists in-progress tickets and offers the next legal statuses. The same page can change a price, mark an item off the board, or add an ingredient in one of the four categories. The builder stops at ten pizzas. After a 409, checkout keeps the server total only until the preview total changes.
 - **Full Docker stack.** `docker compose up --build` starts Postgres, runs migrations and the seed inside the API container, and serves the site on port 3000. Against that stack, the menu showed Anchovies as off the board, and a browser checkout stored a $13.50 pickup for Nia Cole.
+- **Menu suggestion.** On `/build`, a highlighted box sends a short craving to `POST /suggestions`. The API asks `gemini-3.1-flash-lite`, using only available menu rows, for one size and a set of ingredient ids. A legal reply fills the size and ingredient buttons. The customer can change those buttons before **Add to the order**. A message that is not about a pizza gets a fixed refusal and does not fill the builder. No Gemini key, or a used-up free limit, leaves the buttons working.
 
 ## Partial
 

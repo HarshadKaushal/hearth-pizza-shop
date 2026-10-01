@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { readDraft, writeDraft, type DraftPizza } from "@/lib/draft";
-import { formatCents } from "@/lib/money";
+import { apiBase, formatCents } from "@/lib/money";
 import {
   MAX_PIZZAS,
   MAX_TOPPINGS,
@@ -24,6 +24,9 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
   const [cheese, setCheese] = useState<string | null>(null);
   const [toppings, setToppings] = useState<string[]>([]);
   const [draft, setDraft] = useState<DraftPizza[]>([]);
+  const [craving, setCraving] = useState("");
+  const [suggesting, setSuggesting] = useState(false);
+  const [suggestNote, setSuggestNote] = useState<string | null>(null);
 
   useEffect(() => {
     setDraft(readDraft());
@@ -59,6 +62,45 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
     });
   }
 
+  async function suggestPizza() {
+    const prompt = craving.trim();
+    if (prompt.length < 3 || suggesting) {
+      return;
+    }
+    setSuggesting(true);
+    setSuggestNote(null);
+    try {
+      const response = await fetch(`${apiBase()}/suggestions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const body = (await response.json()) as {
+        message?: string | string[];
+        size?: PizzaSize;
+        ingredientIds?: string[];
+      };
+      if (!response.ok || !body.size || !body.ingredientIds) {
+        const message = Array.isArray(body.message) ? body.message.join(" ") : body.message;
+        setSuggestNote(message || "The suggestion did not come back. Use the buttons below.");
+        return;
+      }
+      const chosen = body.ingredientIds
+        .map((id) => ingredients.find((item) => item.id === id))
+        .filter((item): item is Ingredient => Boolean(item));
+      setSize(body.size);
+      setCrust(chosen.find((item) => item.category === "CRUST")?.id ?? null);
+      setSauce(chosen.find((item) => item.category === "SAUCE")?.id ?? null);
+      setCheese(chosen.find((item) => item.category === "CHEESE")?.id ?? null);
+      setToppings(chosen.filter((item) => item.category === "TOPPING").map((item) => item.id));
+      setSuggestNote("Filled from your description. Change any button, then add it to the order.");
+    } catch {
+      setSuggestNote("The suggestion could not be reached. Use the buttons below.");
+    } finally {
+      setSuggesting(false);
+    }
+  }
+
   function addPizza() {
     if (!quote.ok || draft.length >= MAX_PIZZAS) {
       return;
@@ -87,6 +129,27 @@ export function Builder({ ingredients }: { ingredients: Ingredient[] }) {
   return (
     <div className="builder">
       <section className="builder-main">
+        <section className="suggest" aria-labelledby="suggest-title">
+          <h2 id="suggest-title">What are you feeling like today?</h2>
+          <p>Spicy or mushroomy — tell our AI and it will build it for you. You can still change every choice.</p>
+          <textarea
+            value={craving}
+            maxLength={280}
+            rows={3}
+            placeholder="Something spicy, crispy, and cheesy"
+            onChange={(event) => setCraving(event.target.value)}
+          />
+          <button
+            type="button"
+            className="suggest-button"
+            disabled={suggesting || craving.trim().length < 3}
+            onClick={() => void suggestPizza()}
+          >
+            {suggesting ? "Looking at the menu…" : "Build it for me"}
+          </button>
+          {suggestNote ? <p className="suggest-note">{suggestNote}</p> : null}
+        </section>
+
         <fieldset>
           <legend>Size</legend>
           <div className="choices">
